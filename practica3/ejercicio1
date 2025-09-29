@@ -1,0 +1,72 @@
+import java.util.Random; import java.util.Scanner; 
+ 
+public class Juego {     protected int numeroDeVidas;     protected int record;     protected int vidasIniciales;     public Juego() {         this.numeroDeVidas = 0;         this.record = 0;         this.vidasIniciales = 0; 
+    } 
+     
+    public void reiniciaPartida() {         this.numeroDeVidas = this.vidasIniciales; 
+        System.out.println("Partida reiniciada. Vidas: " + this.numeroDeVidas); 
+    } 
+     
+    public void actualizaRecord() {         if (this.numeroDeVidas > this.record) {             this.record = this.numeroDeVidas; 
+            System.out.println("¡Nuevo récord! " + this.record + " vidas restantes."); 
+        } else { 
+            System.out.println("Récord actual: " + this.record + " vidas."); 
+        } 
+    } 
+     
+    public boolean quitaVida() {         this.numeroDeVidas--;         if (this.numeroDeVidas > 0) { 
+            System.out.println("Te quedan " + this.numeroDeVidas + " vidas."); 
+            return true; 
+        } else { 
+            System.out.println("¡Game Over! No te quedan vidas."); 
+            return false; 
+        } 
+    } 
+} 
+import java.util.Random; import java.util.Scanner; 
+ 
+public class JuegoAdivinaNumero extends Juego {     protected int numeroAAdivinar;     protected Random random;     protected Scanner scanner; 
+     
+    public JuegoAdivinaNumero(int vidas) { 
+        super();         this.vidasIniciales = vidas;         this.numeroDeVidas = vidas;         this.random = new Random();         this.scanner = new Scanner(System.in);         this.numeroAAdivinar = 0; 
+    } 
+     
+    public void juega() {         this.reiniciaPartida(); 
+        this.numeroAAdivinar = random.nextInt(11); 
+        System.out.println("=== JUEGO ADIVINA EL NÚMERO ==="); 
+        System.out.println("Adivina un número entre 0 y 10"); 
+         
+        while (this.numeroDeVidas > 0) { 
+            try { 
+                System.out.print("Ingresa tu número: "); 
+                int numeroUsuario = scanner.nextInt(); 
+                 
+                if (numeroUsuario < 0 || numeroUsuario > 10) { 
+                    System.out.println("Error: El número debe estar entre 0 y 10. Intenta nuevamente."); 
+                    continue; 
+                } 
+                 
+                if (numeroUsuario == this.numeroAAdivinar) {                     System.out.println("¡Acertaste!");                     this.actualizaRecord(); 
+                    return; 
+                } else { 
+                    System.out.println("Fallaste.");                     if (!this.quitaVida()) {                         return; 
+                    } 
+                     
+                    if (numeroUsuario < this.numeroAAdivinar) { 
+                        System.out.println("Pista: El número a adivinar es MAYOR"); 
+                    } else { 
+                        System.out.println("Pista: El número a adivinar es MENOR"); 
+                    } 
+                } 
+            } catch (Exception e) { 
+                System.out.println("Error: Ingresa un número válido.");                 scanner.next(); 
+            } 
+        } 
+    } 
+} 
+public class Aplicacion {     public static void main(String[] args) { 
+        System.out.println("Juego Adivina Numero "); 
+        JuegoAdivinaNumero juego = new JuegoAdivinaNumero(3); 
+        juego.juega(); 
+    } 
+} 
