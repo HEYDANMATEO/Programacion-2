@@ -1,0 +1,343 @@
+package com.biblioteca;
+
+public class Libro {
+    public String isbn;
+    public String titulo;
+    public String autor;
+    public boolean disponible;
+    
+    public Libro(String isbn, String titulo, String autor) {
+        this.isbn = isbn;
+        this.titulo = titulo;
+        this.autor = autor;
+        this.disponible = true;
+    }
+}
+
+
+package com.biblioteca;
+
+public class Prestamo {
+    public String libroIsbn;
+    public String usuarioId;
+    public String fecha;
+    public boolean devuelto;
+    
+    public Prestamo(String libroIsbn, String usuarioId) {
+        this.libroIsbn = libroIsbn;
+        this.usuarioId = usuarioId;
+        this.fecha = java.time.LocalDate.now().toString();
+        this.devuelto = false;
+    }
+}
+
+
+
+package com.biblioteca;
+
+public class Usuario {
+    public String id;
+    public String nombre;
+    
+    public Usuario(String id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
+    }
+}
+
+
+package com.biblioteca;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.List;
+
+public class InterfazBiblioteca extends JFrame {
+    private BibliotecaJSON biblioteca = new BibliotecaJSON();
+    private JTextArea texto;
+    
+    public InterfazBiblioteca() {
+        setTitle("Biblioteca Simple");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        
+        texto = new JTextArea();
+        texto.setEditable(false);
+        add(new JScrollPane(texto), BorderLayout.CENTER);
+        
+        JPanel panel = new JPanel(new GridLayout(3, 4));
+        
+        String[] botones = {
+            "Ver Libros", "Agregar Libro", "Borrar Libro", "Ver Usuarios", 
+            "Agregar Usuario", "Borrar Usuario", "Prestar Libro", "Devolver Libro", 
+            "Ver Préstamos", "Salir"
+        };
+        
+        for (String nombre : botones) {
+            JButton boton = new JButton(nombre);
+            boton.addActionListener(e -> manejarBoton(nombre));
+            panel.add(boton);
+        }
+        
+        add(panel, BorderLayout.SOUTH);
+        
+        cargarDatosEjemplo();
+    }
+    
+    private void cargarDatosEjemplo() {
+        if (biblioteca.cargarLibros().isEmpty()) {
+            biblioteca.agregarLibro(new Libro("001", "Cien Años de Soledad", "García Márquez"));
+            biblioteca.agregarLibro(new Libro("002", "1984", "George Orwell"));
+            biblioteca.agregarUsuario(new Usuario("U1", "Juan Pérez"));
+            biblioteca.agregarUsuario(new Usuario("U2", "María López"));
+        }
+    }
+    
+    private void manejarBoton(String opcion) {
+        texto.setText("");
+        
+        switch (opcion) {
+            case "Ver Libros":
+                verLibros();
+                break;
+            case "Agregar Libro":
+                agregarLibro();
+                break;
+            case "Borrar Libro":
+                borrarLibro();
+                break;
+            case "Ver Usuarios":
+                verUsuarios();
+                break;
+            case "Agregar Usuario":
+                agregarUsuario();
+                break;
+            case "Borrar Usuario":
+                borrarUsuario();
+                break;
+            case "Prestar Libro":
+                prestarLibro();
+                break;
+            case "Devolver Libro":
+                devolverLibro();
+                break;
+            case "Ver Préstamos":
+                verPrestamos();
+                break;
+            case "Salir":
+                System.exit(0);
+                break;
+        }
+    }
+    
+    private void verLibros() {
+        List<Libro> libros = biblioteca.cargarLibros();
+        texto.append("=== LIBROS ===\n");
+        for (Libro libro : libros) {
+            texto.append(libro.titulo + " (" + libro.isbn + ") - " + 
+                (libro.disponible ? "Disponible" : "Prestado") + "\n");
+        }
+    }
+    
+    private void agregarLibro() {
+        String isbn = JOptionPane.showInputDialog("ISBN:");
+        String titulo = JOptionPane.showInputDialog("Título:");
+        String autor = JOptionPane.showInputDialog("Autor:");
+        
+        if (isbn != null && titulo != null) {
+            biblioteca.agregarLibro(new Libro(isbn, titulo, autor));
+            texto.append("Libro agregado: " + titulo + "\n");
+        }
+    }
+    
+    private void borrarLibro() {
+        String isbn = JOptionPane.showInputDialog("ISBN del libro a borrar:");
+        if (isbn != null) {
+            biblioteca.borrarLibro(isbn);
+            texto.append("Libro borrado\n");
+        }
+    }
+    
+    private void verUsuarios() {
+        List<Usuario> usuarios = biblioteca.cargarUsuarios();
+        texto.append("=== USUARIOS ===\n");
+        for (Usuario usuario : usuarios) {
+            texto.append(usuario.nombre + " (" + usuario.id + ")\n");
+        }
+    }
+    
+    private void agregarUsuario() {
+        String id = JOptionPane.showInputDialog("ID Usuario:");
+        String nombre = JOptionPane.showInputDialog("Nombre:");
+        
+        if (id != null && nombre != null) {
+            biblioteca.agregarUsuario(new Usuario(id, nombre));
+            texto.append("Usuario agregado: " + nombre + "\n");
+        }
+    }
+    
+    private void borrarUsuario() {
+        String id = JOptionPane.showInputDialog("ID del usuario a borrar:");
+        if (id != null) {
+            biblioteca.borrarUsuario(id);
+            texto.append("Usuario borrado\n");
+        }
+    }
+    
+    private void prestarLibro() {
+        String isbn = JOptionPane.showInputDialog("ISBN del libro:");
+        String usuarioId = JOptionPane.showInputDialog("ID del usuario:");
+        
+        if (isbn != null && usuarioId != null) {
+            biblioteca.prestarLibro(isbn, usuarioId);
+            texto.append("Libro prestado\n");
+        }
+    }
+    
+    private void devolverLibro() {
+        String isbn = JOptionPane.showInputDialog("ISBN a devolver:");
+        if (isbn != null) {
+            biblioteca.devolverLibro(isbn);
+            texto.append("Libro devuelto\n");
+        }
+    }
+    
+    private void verPrestamos() {
+        List<Prestamo> prestamos = biblioteca.cargarPrestamos();
+        texto.append("=== PRÉSTAMOS ===\n");
+        for (Prestamo prestamo : prestamos) {
+            texto.append("Libro: " + prestamo.libroIsbn + 
+                ", Usuario: " + prestamo.usuarioId + 
+                ", " + (prestamo.devuelto ? "Devuelto" : "Pendiente") + "\n");
+        }
+    }
+    
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new InterfazBiblioteca().setVisible(true);
+        });
+    }
+}
+
+
+package com.biblioteca;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.io.*;
+import java.lang.reflect.Type;
+import java.util.*;
+
+public class BibliotecaJSON {
+    private Gson gson = new Gson();
+    
+    public void guardarLibros(List<Libro> libros) {
+        guardar("libros.json", libros);
+    }
+    
+    public List<Libro> cargarLibros() {
+        return cargar("libros.json", new TypeToken<ArrayList<Libro>>(){}.getType());
+    }
+    
+    public void guardarUsuarios(List<Usuario> usuarios) {
+        guardar("usuarios.json", usuarios);
+    }
+    
+    public List<Usuario> cargarUsuarios() {
+        return cargar("usuarios.json", new TypeToken<ArrayList<Usuario>>(){}.getType());
+    }
+    
+    public void guardarPrestamos(List<Prestamo> prestamos) {
+        guardar("prestamos.json", prestamos);
+    }
+    
+    public List<Prestamo> cargarPrestamos() {
+        return cargar("prestamos.json", new TypeToken<ArrayList<Prestamo>>(){}.getType());
+    }
+    
+    private <T> void guardar(String archivo, List<T> lista) {
+        try (FileWriter writer = new FileWriter(archivo)) {
+            gson.toJson(lista, writer);
+        } catch (IOException e) {
+            System.out.println("Error guardando: " + e.getMessage());
+        }
+    }
+    
+    private <T> List<T> cargar(String archivo, Type tipo) {
+        try (Reader reader = new FileReader(archivo)) {
+            return gson.fromJson(reader, tipo);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+    
+    public Libro buscarLibro(String isbn) {
+        for (Libro libro : cargarLibros()) {
+            if (libro.isbn.equals(isbn)) return libro;
+        }
+        return null;
+    }
+    
+    public Usuario buscarUsuario(String id) {
+        for (Usuario usuario : cargarUsuarios()) {
+            if (usuario.id.equals(id)) return usuario;
+        }
+        return null;
+    }
+    
+    public void agregarLibro(Libro libro) {
+        List<Libro> libros = cargarLibros();
+        libros.add(libro);
+        guardarLibros(libros);
+    }
+    
+    public void agregarUsuario(Usuario usuario) {
+        List<Usuario> usuarios = cargarUsuarios();
+        usuarios.add(usuario);
+        guardarUsuarios(usuarios);
+    }
+    
+    public void borrarLibro(String isbn) {
+        List<Libro> libros = cargarLibros();
+        libros.removeIf(libro -> libro.isbn.equals(isbn));
+        guardarLibros(libros);
+    }
+    
+    public void borrarUsuario(String id) {
+        List<Usuario> usuarios = cargarUsuarios();
+        usuarios.removeIf(usuario -> usuario.id.equals(id));
+        guardarUsuarios(usuarios);
+    }
+    
+    public void prestarLibro(String isbn, String usuarioId) {
+        Libro libro = buscarLibro(isbn);
+        if (libro != null && libro.disponible) {
+            libro.disponible = false;
+            List<Libro> libros = cargarLibros();
+            guardarLibros(libros);
+            
+            List<Prestamo> prestamos = cargarPrestamos();
+            prestamos.add(new Prestamo(isbn, usuarioId));
+            guardarPrestamos(prestamos);
+        }
+    }
+    
+    public void devolverLibro(String isbn) {
+        Libro libro = buscarLibro(isbn);
+        if (libro != null) {
+            libro.disponible = true;
+            List<Libro> libros = cargarLibros();
+            guardarLibros(libros);
+            
+            List<Prestamo> prestamos = cargarPrestamos();
+            for (Prestamo p : prestamos) {
+                if (p.libroIsbn.equals(isbn) && !p.devuelto) {
+                    p.devuelto = true;
+                    break;
+                }
+            }
+            guardarPrestamos(prestamos);
+        }
+    }
+}
