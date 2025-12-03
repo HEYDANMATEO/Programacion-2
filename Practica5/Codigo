@@ -1,0 +1,194 @@
+package laboratorio5; class Pagina{     private int numero;     private String contenido     public Pagina(int numero, String contenido) {         this.numero = numero;         this.contenido = contenido; 
+    } 
+    public void mostrarContenido() { 
+        System.out.println("Página " + numero + ": " + contenido); 
+    } 
+    public int getNumero() { return numero; }     public String getContenido() { return contenido; } 
+} 
+ 
+class Horario {     private String diasApertura;     private String horaApertura;     private String horaCierre;     public Horario(String diasApertura, String horaApertura, String horaCierre) {         this.diasApertura = diasApertura;         this.horaApertura = horaApertura; 
+        this.horaCierre = horaCierre; 
+    } 
+    public void mostrarHorario() { 
+        System.out.println("Horario de atención: " + diasApertura + " de " +                            horaApertura + " a " + horaCierre); 
+    } 
+     
+    public String getDiasApertura() { return diasApertura; }     public String getHoraApertura() { return horaApertura; }     public String getHoraCierre() { return horaCierre; } 
+} 
+
+
+
+package laboratorio5; import java.util.ArrayList; import java.util.List; class Autor {     private String nombre;     private String nacionalidad;     public Autor(String nombre, String nacionalidad) {         this.nombre = nombre;         this.nacionalidad = nacionalidad; 
+    } 
+    public void mostrarInfo() { 
+        System.out.println("Autor: " + nombre + " (" + nacionalidad + ")"); 
+    } 
+    public String getNombre() { return nombre; }     public String getNacionalidad() { return nacionalidad; } 
+} 
+ 
+ 
+class Libro {     private String titulo;     private String isbn;     private Autor autor;     private List<Pagina> paginas; 
+     
+    public Libro(String titulo, String isbn, Autor autor) { 
+        this.titulo = titulo;         this.isbn = isbn;         this.autor = autor;         this.paginas = new ArrayList<>(); 
+    } 
+     
+    public void agregarPagina(int numero, String contenido) {         paginas.add(new Pagina(numero, contenido)); 
+    } 
+     
+    public void leer() { 
+        System.out.println("\n--- Leyendo: " + titulo + " ---");         for (Pagina pagina : paginas) {             pagina.mostrarContenido(); 
+        } 
+    } 
+     
+    public void mostrarInfo() { 
+        System.out.println("Libro: " + titulo + " (ISBN: " + isbn + ")");         autor.mostrarInfo(); 
+        System.out.println("Total páginas: " + paginas.size()); 
+    }  
+    public String getTitulo() { return titulo; }     public String getIsbn() { return isbn; }     public Autor getAutor() { return autor; }     public List<Pagina> getPaginas() { return paginas; } 
+} 
+Código 3: 
+package laboratorio5; import java.time.LocalDate; import java.time.format.DateTimeFormatter; 
+ 
+ 
+class Estudiante {     private String codigo;     private String nombre; 
+     
+    public Estudiante(String codigo, String nombre) {         this.codigo = codigo;         this.nombre = nombre; 
+    } 
+    public void mostrarInfo() { 
+        System.out.println("Estudiante: " + nombre + " (Código: " + codigo + ")"); 
+    } 
+    public String getCodigo() { return codigo; }     public String getNombre() { return nombre; } 
+} 
+ 
+ 
+class Prestamo { 
+    private LocalDate fechaPrestamo;     private LocalDate fechaDevolucion;     private Estudiante estudiante;     private Libro libro; 
+     
+    public Prestamo(Estudiante estudiante, Libro libro) {         this.estudiante = estudiante; 
+        this.libro = libro; 
+        this.fechaPrestamo = LocalDate.now();         this.fechaDevolucion = fechaPrestamo.plusDays(15);  
+    } 
+     
+    public void mostrarInfo() { 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");         System.out.println("--- Información del Préstamo ---");         estudiante.mostrarInfo();         libro.mostrarInfo(); 
+        System.out.println("Fecha préstamo: " + fechaPrestamo.format(formatter)); 
+        System.out.println("Fecha devolución: " + fechaDevolucion.format(formatter)); 
+    } 
+     
+     
+    public LocalDate getFechaPrestamo() { return fechaPrestamo; }     public LocalDate getFechaDevolucion() { return fechaDevolucion; }     public Estudiante getEstudiante() { return estudiante; }     public Libro getLibro() { return libro; } 
+} 
+
+
+
+package laboratorio5; 
+ 
+import java.util.ArrayList; import java.util.List; class Biblioteca {     private String nombre;     private List<Libro> libros;     private List<Autor> autores;     private List<Prestamo> prestamos;     private Horario horario;     public Biblioteca(String nombre) {         this.nombre = nombre;         this.libros = new ArrayList<>();         this.autores = new ArrayList<>();         this.prestamos = new ArrayList<>();         this.horario = new Horario("Lunes a Viernes", "08:00", "20:00"); 
+    } 
+    public void agregarLibro(Libro libro) { 
+        libros.add(libro); 
+        System.out.println("✓ Libro agregado: " + libro.getTitulo()); 
+    } 
+    public void agregarAutor(Autor autor) {         autores.add(autor); 
+        System.out.println("✓ Autor registrado: " + autor.getNombre()); 
+    } 
+    public void prestarLibro(Estudiante estudiante, Libro libro) { 
+        if (libros.contains(libro)) { 
+            Prestamo prestamo = new Prestamo(estudiante, libro);             prestamos.add(prestamo); 
+            System.out.println("✓ Préstamo realizado: " + libro.getTitulo() +                               " a " + estudiante.getNombre()); 
+        } else { 
+            System.out.println("✗ El libro no está disponible en la biblioteca"); 
+        } 
+    } 
+     
+    public void mostrarEstado() { 
+        System.out.println("\n" + "=".repeat(50)); 
+        System.out.println("ESTADO DE LA BIBLIOTECA: " + nombre); 
+        System.out.println("=".repeat(50)); 
+         
+        horario.mostrarHorario(); 
+         
+        System.out.println("\n--- AUTORES REGISTRADOS (" + autores.size() + ") ---");         for (Autor autor : autores) {             autor.mostrarInfo(); 
+        } 
+         
+        System.out.println("\n--- LIBROS DISPONIBLES (" + libros.size() + ") ---"); 
+        for (Libro libro : libros) {             libro.mostrarInfo(); 
+        } 
+         
+        System.out.println("\n--- PRÉSTAMOS ACTIVOS (" + prestamos.size() + ") ---");         for (Prestamo prestamo : prestamos) {             prestamo.mostrarInfo(); 
+        } 
+    } 
+     
+    public void cerrarBiblioteca() { 
+        System.out.println("\n Cerrando biblioteca: " + nombre); 
+         
+        prestamos.clear(); 
+        System.out.println("Todos los préstamos han sido cancelados"); 
+    } 
+     
+     
+    public String getNombre() { return nombre; }     public List<Libro> getLibros() { return libros; }     public List<Autor> getAutores() { return autores; }     public List<Prestamo> getPrestamos() { return prestamos; }     public Horario getHorario() { return horario; } 
+} 
+
+
+
+package laboratorio5; 
+ 
+public class SistemaBiblioteca {     public static void main(String[] args) { 
+        System.out.println(" INICIANDO SISTEMA DE BIBLIOTECA UNIVERSITARIA"); 
+        System.out.println("=".repeat(55)); 
+         
+ 
+        Biblioteca bibliotecaUMSA = new Biblioteca("Biblioteca Central UMSA"); 
+         
+   
+Autor autor1 = new Autor("Gabriel Garcia Marquez", "Colombiano"); 
+Autor autor2 = new Autor("Jorge Luis Borges", "Argentino"); 
+Autor autor3 = new Autor("Adela Zamudio", "Boliviana");         bibliotecaUMSA.agregarAutor(autor1);         bibliotecaUMSA.agregarAutor(autor2);         bibliotecaUMSA.agregarAutor(autor3); 
+         
+        
+        Libro libro1 = new Libro("Cien Años de Soledad", "978-8437604947", autor1); 
+        
+        libro1.agregarPagina(1, "Muchos años después, frente al pelotón de fusilamiento...");         libro1.agregarPagina(2, "El mundo era tan reciente que muchas cosas carecían de nombre..."); 
+         
+        Libro libro2 = new Libro("Ficciones", "978-8420673340", autor2);         libro2.agregarPagina(1, "La lotería en Babilonia es una de las instituciones...");         libro2.agregarPagina(2, "El jardín de senderos que se bifurcan es una imagen incompleta..."); 
+         
+        Libro libro3 = new Libro("Íntimas", "978-9995423456", autor3);         libro3.agregarPagina(1, "En el silencio de la noche, mis versos nacen...");         libro3.agregarPagina(2, "La poesía es el refugio del alma solitaria..."); 
+         
+     
+        bibliotecaUMSA.agregarLibro(libro1);         bibliotecaUMSA.agregarLibro(libro2);         bibliotecaUMSA.agregarLibro(libro3); 
+         
+       
+Estudiante est1 = new Estudiante("2021001", "María Fernandez"); 
+Estudiante est2 = new Estudiante("2021002", "Carlos Mamani"); 
+Estudiante est3 = new Estudiante("2021003", "Ana Rodriguez"); 
+         
+       
+        bibliotecaUMSA.prestarLibro(est1, libro1);         bibliotecaUMSA.prestarLibro(est2, libro2);         bibliotecaUMSA.prestarLibro(est3, libro3); 
+         
+       
+        bibliotecaUMSA.mostrarEstado(); 
+         
+   
+        System.out.println("\n" + "=".repeat(50)); 
+        System.out.println("DEMOSTRACIÓN DE COMPOSICIÓN: Leyendo libro");         System.out.println("=".repeat(50)); 
+        libro1.leer(); 
+         
+       
+        System.out.println("\n" + "=".repeat(50)); 
+        System.out.println("DEMOSTRACIÓN DE AGREGACIÓN: Autores independientes"); 
+        System.out.println("=".repeat(50)); 
+        System.out.println("Los autores existen fuera de la biblioteca:");         autor1.mostrarInfo();         autor2.mostrarInfo(); 
+         
+       
+        System.out.println("\n" + "=".repeat(50)); 
+        System.out.println("DEMOSTRACIÓN DE COMPOSICIÓN: Cerrar biblioteca"); System.out.println("=".repeat(50)); bibliotecaUMSA.cerrarBiblioteca(); 
+ 
+       
+        System.out.println("\n" + "=".repeat(50)); 
+        System.out.println("ESTADO FINAL");         System.out.println("=".repeat(50));         bibliotecaUMSA.mostrarEstado(); 
+         
+        System.out.println("\n SISTEMA DE BIBLIOTECA FINALIZADO CORRECTAMENTE"); 
+    } 
+} 
